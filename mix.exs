@@ -3,7 +3,7 @@ defmodule Kubex.Mixfile do
 
   def project do
     [
-      app: :kubex,
+      app: :kubernetex,
       description: "Kubernetes library for Elixir.",
       version: "0.0.1",
       elixir: "~> 1.4",
@@ -25,7 +25,7 @@ defmodule Kubex.Mixfile do
 
   def package do
     [
-      name: :kubex,
+      name: :kubernetex,
       maintainers: ["Ian Luites"],
       licenses: ["MIT"],
       files: [
