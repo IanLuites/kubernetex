@@ -4,6 +4,7 @@ defmodule Kubex.Mixfile do
   def project do
     [
       app: :kubex,
+      description: "Kubernetes library for Elixir.",
       version: "0.0.1",
       elixir: "~> 1.4",
       build_embedded: Mix.env == :prod,
@@ -24,7 +25,7 @@ defmodule Kubex.Mixfile do
 
   def package do
     [
-      name: :httpx,
+      name: :kubex,
       maintainers: ["Ian Luites"],
       licenses: ["MIT"],
       files: [
@@ -44,6 +45,9 @@ defmodule Kubex.Mixfile do
     [
       {:poison, "~> 3.1"},
       {:httpx, "~> 0.0"},
+
+      # Dev / Test
+      {:analyze, ">= 0.0.6", only: [:dev, :test], runtime: false},
     ]
   end
 end
