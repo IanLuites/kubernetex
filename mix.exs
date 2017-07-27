@@ -28,7 +28,7 @@ defmodule Kubex.Mixfile do
       maintainers: ["Ian Luites"],
       licenses: ["MIT"],
       files: [
-        "lib/kubex", "lib/kubex.ex", "mix.exs", "README*", "LICENSE*", # Elixir
+        "lib/kubex", "lib/kubex.ex", "lib/util.ex", "mix.exs", "README*", "LICENSE*", # Elixir
       ],
       links: %{
         "GitHub" => "https://github.com/IanLuites/kubex",
