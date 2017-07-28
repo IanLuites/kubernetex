@@ -10,11 +10,11 @@ Install by adding `kubex` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:kubex, "~> 0.0.1"}]
+  [{:kubernetex, "~> 0.0.1"}]
 end
 ```
 
-The docs can be found at [https://hexdocs.pm/kubex](https://hexdocs.pm/kubex).
+The docs can be found at [https://hexdocs.pm/kubernetex](https://hexdocs.pm/kubernetex).
 
 ## Configuration
 

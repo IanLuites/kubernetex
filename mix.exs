@@ -3,7 +3,8 @@ defmodule Kubex.Mixfile do
 
   def project do
     [
-      app: :kubex,
+      app: :kubernetex,
+      description: "Kubernetes library for Elixir.",
       version: "0.0.1",
       elixir: "~> 1.4",
       build_embedded: Mix.env == :prod,
@@ -24,11 +25,11 @@ defmodule Kubex.Mixfile do
 
   def package do
     [
-      name: :httpx,
+      name: :kubernetex,
       maintainers: ["Ian Luites"],
       licenses: ["MIT"],
       files: [
-        "lib/kubex", "lib/kubex.ex", "mix.exs", "README*", "LICENSE*", # Elixir
+        "lib/kubex", "lib/kubex.ex", "lib/util.ex", "mix.exs", "README*", "LICENSE*", # Elixir
       ],
       links: %{
         "GitHub" => "https://github.com/IanLuites/kubex",
@@ -44,6 +45,9 @@ defmodule Kubex.Mixfile do
     [
       {:poison, "~> 3.1"},
       {:httpx, "~> 0.0"},
+
+      # Dev / Test
+      {:analyze, ">= 0.0.6", only: [:dev, :test], runtime: false},
     ]
   end
 end
