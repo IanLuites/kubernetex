@@ -124,7 +124,7 @@ defmodule Kubex do
   ### Helpers
 
   defp generate_url(object = %{apiVersion: version, kind: kind, metadata: %{name: name}}, type) do
-    base = Application.fetch_env!(:kubex, :url)
+    base = Application.fetch_env!(:kubernetex, :url)
     api =
       case version do
         :v1 -> "api/v1"
@@ -152,7 +152,7 @@ defmodule Kubex do
 
   defp bearer do
     token =
-      :kubex
+      :kubernetex
       |> Application.fetch_env!(:secret)
       |> File.read!
       |> Poison.decode!
