@@ -26,16 +26,24 @@ defmodule Kubex do
     module.__default__
     |> api(version)
   end
-
   def api(object, version) do
     Map.put(object, :apiVersion, version)
+  end
+
+  def namespace(module, namespace) when is_atom(module) do
+    module.__default__
+    |> namespace(namespace)
+  end
+  def namespace(object, namespace) do
+    object
+    |> Map.put_new(:metadata, %{})
+    |> put_in([:metadata, :namespace], namespace)
   end
 
   def name(module, name, namespace) when is_atom(module) do
     module.__default__
     |> name(name, namespace)
   end
-
   def name(object, name, namespace) do
     object
     |> Map.put_new(:metadata, %{})
@@ -47,7 +55,6 @@ defmodule Kubex do
     module.__default__
     |> name(name)
   end
-
   def name(object, name) do
     object
     |> Map.put_new(:metadata, %{})
@@ -75,55 +82,41 @@ defmodule Kubex do
       IO.puts data
       IO.puts "---"
     else
-      headers =
-        [
-          bearer(),
-          {"Content-Type", "application/json"},
-        ]
-
-      options =
-        [
-          headers: headers,
-          format: :json_atoms,
-          settings: [
-            ssl_options: [
-              {:verify, :verify_none},
-              {:server_name_indication, :disable},
-            ],
-          ],
-        ]
-
-      HTTPX.post(url, data, options)
+      HTTPX.post(url, data, request_options())
     end
   end
 
   def delete(object) do
     url = generate_url(object, :delete)
 
-    headers =
-      [
-        bearer(),
-        {"Content-Type", "application/json"},
-      ]
+    HTTPX.request(:delete, url, request_options())
+  end
 
-    options =
-      [
-        headers: headers,
-        format: :json_atoms,
-        settings: [
-          ssl_options: [
-            {:verify, :verify_none},
-            {:server_name_indication, :disable},
-          ],
-        ],
-      ]
+  ### Find
 
-    HTTPX.request(:delete, url, options)
+  def get(object) do
+    url = generate_url(object, :get)
+
+    HTTPX.request(:get, url, request_options())
+  end
+
+  def list(object) do
+    url = generate_url(object, :index)
+
+    with {:ok, data} <- HTTPX.request(:get, url, request_options()),
+         %{body: json} <- data,
+         %{items: items} <- json
+    do
+      {:ok, items}
+    else
+      error = {:error, _reason} -> error
+      _ -> {:error, :can_not_list_resource}
+    end
   end
 
   ### Helpers
 
-  defp generate_url(object = %{apiVersion: version, kind: kind, metadata: %{name: name}}, type) do
+  defp generate_url(object = %{apiVersion: version, kind: kind}, type) do
     base = Application.fetch_env!(:kubernetex, :url)
     api =
       case version do
@@ -142,12 +135,34 @@ defmodule Kubex do
       end
 
     case type do
-      :delete -> url <> "/" <> name
-      :get -> url <> "/" <> name
+      :delete -> url <> "/" <> object.metadata.name
+      :get -> url <> "/" <> object.metadata.name
       :index -> url
       :post -> url
-      :put -> url <> "/" <> name
+      :put -> url <> "/" <> object.metadata.name
     end
+  end
+
+  defp generate_url(kind, type) do
+    kind.__default__
+    |> Map.put(:metadata, %{name: nil})
+    |> generate_url(type)
+  end
+
+  defp request_options do
+    [
+      headers: [
+        bearer(),
+        {"Content-Type", "application/json"},
+      ],
+      format: :json_atoms,
+      settings: [
+        ssl_options: [
+          {:verify, :verify_none},
+          {:server_name_indication, :disable},
+        ],
+      ],
+    ]
   end
 
   defp bearer do
