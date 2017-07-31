@@ -26,16 +26,24 @@ defmodule Kubex do
     module.__default__
     |> api(version)
   end
-
   def api(object, version) do
     Map.put(object, :apiVersion, version)
+  end
+
+  def namespace(module, namespace) when is_atom(module) do
+    module.__default__
+    |> namespace(namespace)
+  end
+  def namespace(object, namespace) do
+    object
+    |> Map.put_new(:metadata, %{})
+    |> put_in([:metadata, :namespace], namespace)
   end
 
   def name(module, name, namespace) when is_atom(module) do
     module.__default__
     |> name(name, namespace)
   end
-
   def name(object, name, namespace) do
     object
     |> Map.put_new(:metadata, %{})
