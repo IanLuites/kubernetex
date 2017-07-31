@@ -5,7 +5,7 @@ defmodule Kubex.Mixfile do
     [
       app: :kubernetex,
       description: "Kubernetes library for Elixir.",
-      version: "0.0.2",
+      version: "0.0.3",
       elixir: "~> 1.4",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
