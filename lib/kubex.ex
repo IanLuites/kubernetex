@@ -11,6 +11,8 @@ defmodule Kubex do
       alias Kubex.Ingress
       alias Kubex.Ingress.Path
       alias Kubex.Namespace
+      alias Kubex.Pod
+      alias Kubex.ReplicaSet
       alias Kubex.Service
       alias Kubex.Service.Port
 
@@ -18,6 +20,8 @@ defmodule Kubex do
       import Deployment, except: [__resource__: 0]
       import Ingress, except: [__resource__: 0]
       import Namespace, except: [__resource__: 0]
+      import Pod, except: [__resource__: 0]
+      import ReplicaSet, except: [__resource__: 0]
       import Service, except: [__resource__: 0]
     end
   end
@@ -26,6 +30,7 @@ defmodule Kubex do
     module.__default__
     |> api(version)
   end
+
   def api(object, version) do
     Map.put(object, :apiVersion, version)
   end
@@ -34,6 +39,7 @@ defmodule Kubex do
     module.__default__
     |> namespace(namespace)
   end
+
   def namespace(object, namespace) do
     object
     |> Map.put_new(:metadata, %{})
@@ -44,6 +50,7 @@ defmodule Kubex do
     module.__default__
     |> name(name, namespace)
   end
+
   def name(object, name, namespace) do
     object
     |> Map.put_new(:metadata, %{})
@@ -55,6 +62,7 @@ defmodule Kubex do
     module.__default__
     |> name(name)
   end
+
   def name(object, name) do
     object
     |> Map.put_new(:metadata, %{})
@@ -72,15 +80,15 @@ defmodule Kubex do
 
     data =
       object
-      |> Map.put(:kind, kind |> to_string |> String.split(".") |> List.last)
+      |> Map.put(:kind, kind |> to_string |> String.split(".") |> List.last())
       |> Poison.encode!(pretty)
 
     url = generate_url(object, :post)
 
     if options[:dry] do
-      IO.puts "Post: #{url}\r\n---"
-      IO.puts data
-      IO.puts "---"
+      IO.puts("Post: #{url}\r\n---")
+      IO.puts(data)
+      IO.puts("---")
     else
       HTTPX.post(url, data, request_options())
     end
@@ -105,8 +113,7 @@ defmodule Kubex do
 
     with {:ok, data} <- HTTPX.request(:get, url, request_options()),
          %{body: json} <- data,
-         %{items: items} <- json
-    do
+         %{items: items} <- json do
       {:ok, items}
     else
       error = {:error, _reason} -> error
@@ -114,10 +121,39 @@ defmodule Kubex do
     end
   end
 
+  def log(object, follow \\ false)
+
+  def log(object, true) do
+    url = generate_url(object, :log)
+
+    options =
+      request_options()
+      |> Keyword.delete(:format)
+      |> Keyword.put(:params, %{follow: "true"})
+
+    HTTPX.request(:get, url, options)
+  end
+
+  def log(object, false) do
+    url = generate_url(object, :log)
+
+    options =
+      request_options()
+      |> Keyword.delete(:format)
+
+    with {:ok, %{body: log}} <- HTTPX.request(:get, url, options) do
+      {:ok, log}
+    else
+      error = {:error, _reason} -> error
+      _ -> {:error, :can_not_find_log}
+    end
+  end
+
   ### Helpers
 
   defp generate_url(object = %{apiVersion: version, kind: kind}, type) do
     base = Application.fetch_env!(:kubernetex, :url)
+
     api =
       case version do
         :v1 -> "api/v1"
@@ -138,6 +174,7 @@ defmodule Kubex do
       :delete -> url <> "/" <> object.metadata.name
       :get -> url <> "/" <> object.metadata.name
       :index -> url
+      :log -> url <> "/" <> object.metadata.name <> "/log"
       :post -> url
       :put -> url <> "/" <> object.metadata.name
     end
@@ -153,15 +190,15 @@ defmodule Kubex do
     [
       headers: [
         bearer(),
-        {"Content-Type", "application/json"},
+        {"Content-Type", "application/json"}
       ],
       format: :json_atoms,
       settings: [
         ssl_options: [
           {:verify, :verify_none},
-          {:server_name_indication, :disable},
-        ],
-      ],
+          {:server_name_indication, :disable}
+        ]
+      ]
     ]
   end
 
@@ -169,11 +206,11 @@ defmodule Kubex do
     token =
       :kubernetex
       |> Application.fetch_env!(:secret)
-      |> File.read!
-      |> Poison.decode!
+      |> File.read!()
+      |> Poison.decode!()
       |> Map.get("data")
       |> Map.get("token")
-      |> Base.decode64!
+      |> Base.decode64!()
 
     {"authorization", "Bearer " <> token}
   end
