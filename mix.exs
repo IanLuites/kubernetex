@@ -5,10 +5,10 @@ defmodule Kubex.Mixfile do
     [
       app: :kubernetex,
       description: "Kubernetes library for Elixir.",
-      version: "0.0.3",
+      version: "0.0.4",
       elixir: "~> 1.4",
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
 
@@ -18,8 +18,8 @@ defmodule Kubex.Mixfile do
       homepage_url: "https://github.com/IanLuites/kubex",
       docs: [
         main: "readme",
-        extras: ["README.md"],
-      ],
+        extras: ["README.md"]
+      ]
     ]
   end
 
@@ -29,11 +29,17 @@ defmodule Kubex.Mixfile do
       maintainers: ["Ian Luites"],
       licenses: ["MIT"],
       files: [
-        "lib/kubex", "lib/kubex.ex", "lib/util.ex", "mix.exs", "README*", "LICENSE*", # Elixir
+        # Elixir
+        "lib/kubex",
+        "lib/kubex.ex",
+        "lib/util.ex",
+        "mix.exs",
+        "README*",
+        "LICENSE*"
       ],
       links: %{
-        "GitHub" => "https://github.com/IanLuites/kubex",
-      },
+        "GitHub" => "https://github.com/IanLuites/kubex"
+      }
     ]
   end
 
@@ -47,7 +53,7 @@ defmodule Kubex.Mixfile do
       {:httpx, "~> 0.0"},
 
       # Dev / Test
-      {:analyze, ">= 0.0.6", only: [:dev, :test], runtime: false},
+      {:analyze, ">= 0.0.6", only: [:dev, :test], runtime: false}
     ]
   end
 end
