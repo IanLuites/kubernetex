@@ -1,21 +1,23 @@
-defmodule Kubex.Mixfile do
+defmodule Kubernetex.MixProject do
   use Mix.Project
+
+  @version "1.0.0-rc1"
 
   def project do
     [
       app: :kubernetex,
       description: "Kubernetes library for Elixir.",
-      version: "0.0.4",
-      elixir: "~> 1.4",
+      version: @version,
+      elixir: "~> 1.7",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
 
       # Docs
-      name: "Kubex",
-      source_url: "https://github.com/IanLuites/kubex",
-      homepage_url: "https://github.com/IanLuites/kubex",
+      name: "Kubernetex",
+      source_url: "https://github.com/IanLuites/kubernetex",
+      homepage_url: "https://github.com/IanLuites/kubernetex",
       docs: [
         main: "readme",
         extras: ["README.md"]
@@ -38,7 +40,7 @@ defmodule Kubex.Mixfile do
         "LICENSE*"
       ],
       links: %{
-        "GitHub" => "https://github.com/IanLuites/kubex"
+        "GitHub" => "https://github.com/IanLuites/kubernetex"
       }
     ]
   end
@@ -48,12 +50,6 @@ defmodule Kubex.Mixfile do
   end
 
   defp deps do
-    [
-      {:poison, "~> 3.1"},
-      {:httpx, "~> 0.0"},
-
-      # Dev / Test
-      {:analyze, ">= 0.0.6", only: [:dev, :test], runtime: false}
-    ]
+    []
   end
 end
