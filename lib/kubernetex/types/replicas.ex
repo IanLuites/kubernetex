@@ -37,4 +37,8 @@ defmodule Kubernetex.Replicas do
       concat(["#Replicas<", to_string(replicas), ">"])
     end
   end
+
+  defimpl Jason.Encoder, for: __MODULE__ do
+    def encode(%{replicas: replicas}, _opts), do: Jason.Encode.integer(replicas)
+  end
 end

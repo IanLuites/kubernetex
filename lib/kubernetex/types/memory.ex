@@ -72,4 +72,9 @@ defmodule Kubernetex.Memory do
       concat(["#Memory<", to_string(memory), to_string(unit), ">"])
     end
   end
+
+  defimpl Jason.Encoder, for: __MODULE__ do
+    def encode(%{memory: memory, unit: unit}, _opts),
+      do: [?", to_string(memory), to_string(unit), ?"]
+  end
 end

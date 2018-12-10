@@ -58,4 +58,14 @@ defmodule Kubernetex.CPU do
       end
     end
   end
+
+  defimpl Jason.Encoder, for: __MODULE__ do
+    def encode(%{cpu: cpu}, _opts) do
+      if rem(cpu, 1_000) == 0 do
+        [?", to_string(Integer.floor_div(cpu, 1_000)), ?"]
+      else
+        [?", to_string(cpu), "m\""]
+      end
+    end
+  end
 end
