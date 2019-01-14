@@ -55,6 +55,10 @@ defmodule Kubernetex.MixProject do
       {:httpx, "~> 0.0.12"},
       {:jason, "~> 1.1"},
       {:yaml_elixir, "~> 2.1"},
+
+      # Dev Only
+      {:analyze, "~> 0.1.3", optional: true, runtime: false, only: [:dev, :test]},
+      {:dialyxir, "~> 1.0.0-rc.4", optional: true, runtime: false, only: [:dev, :test]}
     ]
   end
 end
