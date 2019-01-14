@@ -5,7 +5,7 @@ defmodule Kubernetex.Replicas do
     :replicas
   ]
 
-  def dump(%__MODULE__{replicas: replicas}), do: replicas
+  def dump(%__MODULE__{replicas: replicas}), do: {:ok, replicas}
 
   @spec parse!(any) :: t | no_return
   def parse!(value) do
@@ -16,6 +16,8 @@ defmodule Kubernetex.Replicas do
   end
 
   @spec parse(any) :: {:ok, t} | {:error, atom}
+  def parse(replicas = %__MODULE__{}), do: {:ok, replicas}
+
   def parse(value) when is_number(value) do
     value = trunc(value)
     if value > 0, do: {:ok, %__MODULE__{replicas: value}}, else: {:error, :invalid_replica_range}
