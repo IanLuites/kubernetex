@@ -32,6 +32,8 @@ defmodule Kubernetex.Docker do
   Parse a string to a docker image.
   """
   @spec parse(any) :: {:ok, t} | {:error, :invalid_docker_image}
+  def parse(docker = %__MODULE__{}), do: {:ok, docker}
+
   def parse(value) when is_binary(value) do
     input =
       Regex.named_captures(
@@ -61,6 +63,8 @@ defmodule Kubernetex.Docker do
   end
 
   def parse(_), do: {:error, :invalid_docker_image}
+
+  def dump(value), do: {:ok, to_string(value)}
 
   defimpl Inspect, for: __MODULE__ do
     @doc false
