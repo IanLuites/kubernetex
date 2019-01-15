@@ -18,9 +18,9 @@ defmodule Kubernetex.Cluster do
             ns = opts[:namespace]
 
             cond do
+              resource == Kubernetex.Namespace -> {:ok, String.trim_trailing(pre_ns, "/")}
               is_binary(ns) -> {:ok, pre_ns <> ns <> post_ns}
               is_map(ns) -> {:ok, pre_ns <> ns.metadata.name <> post_ns}
-              resource == Kubernetex.Namespace -> {:ok, String.trim_trailing(pre_ns, "/")}
               resource != Kubernetex.Namespace -> {:ok, pre_ns <> "default" <> post_ns}
             end
 
