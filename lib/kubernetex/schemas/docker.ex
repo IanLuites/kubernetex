@@ -81,8 +81,10 @@ defmodule Kubernetex.Docker do
     @doc false
     @spec to_string(map) :: String.t()
     def to_string(docker) do
+      registry = if(docker.registry == "https://hub.docker.com", do: nil, else: docker.registry)
+
       url =
-        [docker.registry, docker.organization, docker.image]
+        [registry, docker.organization, docker.image]
         |> Enum.reject(&is_nil/1)
         |> Enum.join("/")
 
