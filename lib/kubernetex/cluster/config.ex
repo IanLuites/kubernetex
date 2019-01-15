@@ -69,10 +69,21 @@ defmodule Kubernetex.Cluster.Config do
         do: Enum.find(clusters, &(&1.name == id)),
         else: clusters |> List.first()
 
-    if cert = get_in(cluster || %{}, [:cluster, :"certificate-authority-data"]) do
-      certificate(nil, Keyword.put(opts, :certificate, cert))
-    else
-      certificate(nil, opts)
+    cond do
+      cert = get_in(cluster || %{}, [:cluster, :"certificate-authority-data"]) ->
+        certificate(nil, Keyword.put(opts, :certificate, cert))
+
+      file = get_in(cluster || %{}, [:cluster, :"certificate-authority"]) ->
+        with {:ok, data} <- File.read(file) do
+          {:ok,
+           data
+           |> :public_key.pem_decode()
+           |> List.first()
+           |> elem(1)}
+        end
+
+      :no_cert ->
+        certificate(nil, opts)
     end
   end
 

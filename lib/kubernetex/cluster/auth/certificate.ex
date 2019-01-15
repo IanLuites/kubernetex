@@ -18,8 +18,8 @@ defmodule Kubernetex.Cluster.Auth.Certificate do
   @doc "Parse #{@moduledoc}"
   @spec parse(any) :: {:ok, t} | {:error, atom}
   def parse(%{user: auth, name: name}) do
-    with {:ok, user_key} <- Base.decode64(auth[:"client-key-data"] || ""),
-         {:ok, user_cert} <- Base.decode64(auth[:"client-certificate-data"] || "") do
+    with {:ok, user_key} <- key(auth),
+         {:ok, user_cert} <- cert(auth) do
       {:ok,
        %__MODULE__{
          user: name,
@@ -39,6 +39,14 @@ defmodule Kubernetex.Cluster.Auth.Certificate do
   end
 
   def parse(_), do: {:error, :invalid_certificate_auth}
+
+  defp key(%{"client-key-data": data}), do: Base.decode64(data)
+  defp key(%{"client-key": file}), do: File.read(file)
+  defp key(_), do: {:error, :no_client_key}
+
+  defp cert(%{"client-certificate-data": data}), do: Base.decode64(data)
+  defp cert(%{"client-certificate": file}), do: File.read(file)
+  defp cert(_), do: {:error, :no_client_key}
 
   defimpl Inspect, for: __MODULE__ do
     def inspect(%{user: user}, _opts), do: "#CertificateAuth<#{user}>"
