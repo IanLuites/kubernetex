@@ -21,6 +21,8 @@ defmodule Kubernetex.Memory do
   end
 
   @spec parse(any) :: {:ok, t} | {:error, atom}
+  def parse(value = %__MODULE__{}), do: {:ok, value}
+
   def parse(value) when is_binary(value) do
     with {memory, unit_string} when memory > 0 <- Float.parse(value),
          unit when unit != nil <- @units_table[String.downcase(unit_string)] do

@@ -17,6 +17,8 @@ defmodule Kubernetex.CPU do
   end
 
   @spec parse(any) :: {:ok, t} | {:error, atom}
+  def parse(value = %__MODULE__{}), do: {:ok, value}
+
   def parse(value) when is_integer(value) do
     if value > 0, do: {:ok, %__MODULE__{cpu: value * 1000}}, else: {:error, :invalid_cpu_range}
   end
