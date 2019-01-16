@@ -1,7 +1,13 @@
 defmodule Kubernetex.Cluster.Convenience do
   defmacro __using__(_opts \\ []) do
     Enum.reduce(
-      [Kubernetex.Deployment, Kubernetex.Ingress, Kubernetex.Namespace, Kubernetex.Service],
+      [
+        Kubernetex.Deployment,
+        Kubernetex.Ingress,
+        Kubernetex.Namespace,
+        Kubernetex.Secret,
+        Kubernetex.Service
+      ],
       nil,
       fn resource, acc ->
         base =

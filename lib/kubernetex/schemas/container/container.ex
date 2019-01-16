@@ -16,5 +16,8 @@ defmodule Kubernetex.Container do
     field :name, :string, required: true
     field :image, Kubernetex.Docker, required: true
     field :ports, {:array, __MODULE__.Port}, required: false, default: []
+    field :env, {:array, __MODULE__.EnvVar}, required: false, default: []
+    field :env_from, {:array, __MODULE__.EnvFromSource}, required: false, default: []
+    field :resources, __MODULE__.Resources, required: false, default: nil
   end
 end

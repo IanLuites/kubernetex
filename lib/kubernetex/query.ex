@@ -24,7 +24,16 @@ defmodule Kubernetex.Query do
     aliases =
       if opts[:schemas] do
         quote do
-          alias Kubernetex.{Container, Deployment, Ingress, Namespace, Pod, Service, Template}
+          alias Kubernetex.{
+            Container,
+            Deployment,
+            Ingress,
+            Namespace,
+            Pod,
+            Secret,
+            Service,
+            Template
+          }
         end
       end
 
@@ -69,7 +78,7 @@ defmodule Kubernetex.Query do
 
   queryfy(:labels, [:labels])
 
-  def labels(query = %__MODULE__{resource: resource}, labels) do
+  def labels(query, labels) do
     labels = Map.new(labels)
     update_in(query, [:data, :metadata, :labels], labels, &Map.merge(&1, labels))
   end
@@ -182,7 +191,102 @@ defmodule Kubernetex.Query do
   queryfy(:replicas, [:replicas])
   def replicas(query, replicas), do: put_in(query, [:data, :spec, :replicas], replicas)
 
+  queryfy(:secret, [:key, :value])
+
+  def secret(query, key, value) when is_binary(value) do
+    put_in(
+      query,
+      [:data, :data, to_string(key)],
+      Base.encode64(value, padding: true)
+    )
+  end
+
+  def secret(_, _, _), do: {:error, :secret_value_must_be_binary}
+
+  queryfy(:env_var, [:name, :value])
+
+  def env_var(query = %__MODULE__{resource: resource}, name, value) do
+    var = %{name: name, value: value}
+
+    case resource do
+      Container ->
+        update_in(
+          query,
+          [:data, :env],
+          [var],
+          &add_env_var(&1, var)
+        )
+    end
+  end
+
+  queryfy(:env_var, [:name, :value])
+
+  def env_from(query = %__MODULE__{resource: resource}, env_source) do
+    env_source = [env_source(env_source)]
+
+    case resource do
+      Container ->
+        update_in(
+          query,
+          [:data, :env_from],
+          env_source,
+          &(&1 ++ env_source)
+        )
+    end
+  end
+
+  queryfy(:limit, [:limit])
+
+  def limit(query = %__MODULE__{resource: resource}, cpu = %Kubernetex.CPU{}) do
+    case resource do
+      Container -> put_in(query, [:data, :resources, :limits, :cpu], cpu)
+    end
+  end
+
+  def limit(query = %__MODULE__{resource: resource}, memory = %Kubernetex.Memory{}) do
+    case resource do
+      Container -> put_in(query, [:data, :resources, :limits, :memory], memory)
+    end
+  end
+
+  queryfy(:request, [:limit])
+
+  def request(query = %__MODULE__{resource: resource}, cpu = %Kubernetex.CPU{}) do
+    case resource do
+      Container -> put_in(query, [:data, :resources, :requests, :cpu], cpu)
+    end
+  end
+
+  def request(query = %__MODULE__{resource: resource}, memory = %Kubernetex.Memory{}) do
+    case resource do
+      Container -> put_in(query, [:data, :resources, :requests, :memory], memory)
+    end
+  end
+
+  queryfy(:history_limit, [:limit])
+
+  def history_limit(query, limit),
+    do: put_in(query, [:data, :spec, :revision_history_limit], limit)
+
   ### Helpers ###
+
+  alias Kubernetex.Container.EnvFromSource
+
+  defp env_source(source = %EnvFromSource{}),
+    do: with({:ok, s} <- EnvFromSource.dump(source), do: s)
+
+  defp env_source(%Kubernetex.Secret{metadata: %{name: name}}) do
+    %{secret_ref: %{name: name}}
+  end
+
+  defp env_source(source = %t{}) do
+    with {:ok, s} <- t.dump(source) do
+      case t do
+        Kubernetex.SecretEnvSource -> %{secret_ref: s}
+        Kubernetex.ConfigMapEnvSource -> %{config_map_ref: s}
+      end
+    end
+  end
 
   defp put_in(map, keys, value)
 
@@ -218,5 +322,9 @@ defmodule Kubernetex.Query do
 
   defp add_container(containers, container = %{name: name}) do
     [container | Enum.reject(containers, &(&1.name == name))]
+  end
+
+  defp add_env_var(vars, env_var = %{name: name}) do
+    [env_var | Enum.reject(vars, &(&1.name == name))]
   end
 end
