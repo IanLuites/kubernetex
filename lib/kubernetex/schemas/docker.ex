@@ -51,10 +51,13 @@ defmodule Kubernetex.Docker do
          image: image,
          organization: if(org == "", do: nil, else: org),
          registry:
-           if(registry == "",
-             do: "https://hub.docker.com",
-             else: String.trim_trailing(registry, "/")
-           ),
+           case registry do
+             nil -> nil
+             "" -> nil
+             "hub.docker.com" -> nil
+             "https://hub.docker.com" -> nil
+             reg -> String.trim_trailing(reg, "/")
+           end,
          tag: if(tag == "", do: "latest", else: tag)
        }}
     else
@@ -81,10 +84,8 @@ defmodule Kubernetex.Docker do
     @doc false
     @spec to_string(map) :: String.t()
     def to_string(docker) do
-      registry = if(docker.registry == "https://hub.docker.com", do: nil, else: docker.registry)
-
       url =
-        [registry, docker.organization, docker.image]
+        [docker.registry, docker.organization, docker.image]
         |> Enum.reject(&is_nil/1)
         |> Enum.join("/")
 
