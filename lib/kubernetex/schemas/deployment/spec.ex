@@ -20,6 +20,7 @@ defmodule Kubernetex.Deployment.Spec do
     field :replicas, Kubernetex.Replicas, required: true
     field :selector, Kubernetex.Deployment.Selector, required: true
     field :template, Kubernetex.Template, required: true
+    field :revision_history_limit, :non_neg_integer, required: false, default: 10
   end
 
   # defimpl Inspect, for: __MODULE__ do
