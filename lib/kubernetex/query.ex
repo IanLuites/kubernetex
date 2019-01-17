@@ -46,11 +46,14 @@ defmodule Kubernetex.Query do
     end
   end
 
-  alias Kubernetex.{Container, Deployment, Namespace, Service, Template}
+  alias Kubernetex.{Container, Deployment, HorizontalPodAutoscaler, Namespace, Service, Template}
 
   defstruct [
     :resource,
-    data: %{}
+    data: %{},
+    hooks: %{
+      post: []
+    }
   ]
 
   require __MODULE__.Querify
@@ -115,6 +118,32 @@ defmodule Kubernetex.Query do
   def backend(query, service_name, service_port) do
     backend = %{service_name: service_name, service_port: service_port}
     put_in(query, [:data, :spec, :backend], backend)
+  end
+
+  queryfy(:rule, [:rule])
+
+  def rule(query, rule) do
+    {service_name, service_port} = rule[:backend]
+    backend = %{service_name: service_name, service_port: service_port}
+
+    path =
+      if p = rule[:path] do
+        %{
+          path: p,
+          backend: backend
+        }
+      else
+        %{
+          backend: backend
+        }
+      end
+
+    put_in(query, [:data, :spec, :rules], [
+      %{
+        host: rule[:host],
+        http: %{paths: [path]}
+      }
+    ])
   end
 
   queryfy(:drop_port, [:port])
@@ -267,6 +296,63 @@ defmodule Kubernetex.Query do
 
   def history_limit(query, limit),
     do: put_in(query, [:data, :spec, :revision_history_limit], limit)
+
+  def scale(query, min, max), do: scale(query, min, max, 50)
+
+  queryfy(:scale, [:min, :max, :cpu])
+
+  def scale(query = %__MODULE__{resource: resource}, min, max, cpu) do
+    case resource do
+      Deployment ->
+        hook = [
+          fn cluster, deployment = %{metadata: %{name: name, namespace: ns}} ->
+            case cluster.horizontal_pod_autoscaler(name, namespace: ns) do
+              {:ok, scaler} ->
+                scaler
+                |> IO.inspect()
+                |> scale(min, max, cpu)
+                |> IO.inspect()
+                |> scale_target_ref(deployment)
+                |> cluster.apply()
+
+              {:error, %{reason: "NotFound"}} ->
+                HorizontalPodAutoscaler
+                |> name(name)
+                |> namespace(ns)
+                |> scale(min, max, cpu)
+                |> scale_target_ref(deployment)
+                |> cluster.apply()
+
+              error ->
+                error
+            end
+          end
+        ]
+
+        update_in(
+          query,
+          [:hooks, :post],
+          hook,
+          &(&1 ++ hook)
+        )
+
+      HorizontalPodAutoscaler ->
+        query
+        |> put_in([:data, :spec, :min_replicas], min)
+        |> put_in([:data, :spec, :max_replicas], max)
+        |> put_in([:data, :spec, :target_cpu_utilization_percentage], cpu)
+    end
+  end
+
+  queryfy(:scale_target_ref, [:reference])
+
+  def scale_target_ref(query, reference = %type{}),
+    do:
+      put_in(query, [:data, :spec, :scale_target_ref], %{
+        api_version: type.__api__(:version),
+        kind: type.__api__(:kind),
+        name: reference.metadata.name
+      })
 
   ### Helpers ###
 
