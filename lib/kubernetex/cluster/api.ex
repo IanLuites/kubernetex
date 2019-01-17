@@ -17,6 +17,10 @@ defmodule Kubernetex.Cluster.API do
       @spec patch(String.t(), map, map) :: {:ok, map} | {:error, any}
       defp patch(endpoint, body, params \\ %{}),
         do: unquote(__MODULE__).patch(__config__(), endpoint, body, params)
+
+      @spec do_delete(String.t(), map) :: {:ok, map} | {:error, any}
+      defp do_delete(endpoint, params \\ %{}),
+        do: unquote(__MODULE__).delete(__config__(), endpoint, params)
     end
   end
 
@@ -69,6 +73,20 @@ defmodule Kubernetex.Cluster.API do
         settings: settings(config)
       )
     end
+    |> response
+  end
+
+  @doc false
+  @spec delete(Config.t(), String.t(), map) :: {:ok, map} | {:error, any}
+  def delete(config = %Config{url: url}, endpoint, params \\ %{}) do
+    Logger.debug(fn -> "Kube DELETE #{url <> endpoint}" end)
+
+    HTTPX.delete(
+      url <> endpoint,
+      params: params,
+      headers: [{"Accept", "application/json"}],
+      settings: settings(config)
+    )
     |> response
   end
 

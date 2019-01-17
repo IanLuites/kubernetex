@@ -17,6 +17,13 @@ defmodule Kubernetex.Cluster do
         end
       end
 
+      def delete(%resource{metadata: %{name: name, namespace: ns}}, opts \\ []) do
+        with {:ok, path} <- path(resource, Keyword.put(opts, :namespace, ns)),
+             {:ok, _data} <- do_delete("#{path}/#{name}") do
+          :ok
+        end
+      end
+
       defp path(resource, opts) do
         case resource.__api__(:path) do
           {pre_ns, post_ns} ->
