@@ -309,9 +309,7 @@ defmodule Kubernetex.Query do
             case cluster.horizontal_pod_autoscaler(name, namespace: ns) do
               {:ok, scaler} ->
                 scaler
-                |> IO.inspect()
                 |> scale(min, max, cpu)
-                |> IO.inspect()
                 |> scale_target_ref(deployment)
                 |> cluster.apply()
 
