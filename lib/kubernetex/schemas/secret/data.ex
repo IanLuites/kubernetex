@@ -7,7 +7,7 @@ defmodule Kubernetex.Secret.Data do
 
   def parse(_), do: {:error, :invalid_secret_data}
 
-  def dump(data) do
+  def dump(data, _opts \\ []) do
     MapX.new(
       data,
       fn {k, v} -> {:ok, k, Base.encode64(v, padding: true, case: :upper)} end
