@@ -4,7 +4,7 @@ defmodule Kubernetex.Ingress.Backend do
   """
   use Kubernetex.Structure
 
-  defstructure version: "core/v1" do
+  defstructure version: "extensions/v1beta1" do
     field :service_name, :string, required: true
     field :service_port, :port, required: true
   end

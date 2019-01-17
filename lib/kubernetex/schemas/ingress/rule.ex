@@ -4,7 +4,8 @@ defmodule Kubernetex.Ingress.Rule do
   """
   use Kubernetex.Structure
 
-  defstructure version: "core/v1" do
+  defstructure version: "extensions/v1beta1" do
     field :host, :string, required: false
+    field :http, Kubernetex.Ingress.Rules.HTTP, required: true
   end
 end

@@ -4,7 +4,7 @@ defmodule Kubernetex.Ingress.Spec do
   """
   use Kubernetex.Structure
 
-  defstructure version: "core/v1" do
+  defstructure version: "extensions/v1beta1" do
     field :backend, Kubernetex.Ingress.Backend, required: false
     field :rules, {:array, Kubernetex.Ingress.Rule}, required: false, default: []
   end
