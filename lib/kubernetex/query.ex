@@ -11,7 +11,7 @@ defmodule Kubernetex.Query.Querify do
         do: unquote(name)(%__MODULE__{resource: query}, unquote_splicing(args))
 
       def unquote(name)(data = %resource{}, unquote_splicing(args)) when resource != __MODULE__ do
-        with {:ok, dumped} <- resource.dump(data) do
+        with {:ok, dumped} <- resource.dump(data, keys: :snake) do
           unquote(name)(%__MODULE__{resource: resource, data: dumped}, unquote_splicing(args))
         end
       end
