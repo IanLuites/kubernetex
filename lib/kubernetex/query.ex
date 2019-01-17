@@ -297,6 +297,29 @@ defmodule Kubernetex.Query do
   def history_limit(query, limit),
     do: put_in(query, [:data, :spec, :revision_history_limit], limit)
 
+  queryfy(:scale, [:option])
+
+  def scale(query, false) do
+    hook = [
+      fn cluster, %{metadata: %{name: name, namespace: ns}} ->
+        case cluster.horizontal_pod_autoscaler(name, namespace: ns) do
+          {:ok, scaler} -> with :ok <- cluster.delete(scaler), do: {:ok, false}
+          {:error, %{reason: "NotFound"}} -> {:ok, false}
+          error -> error
+        end
+      end
+    ]
+
+    update_in(
+      query,
+      [:hooks, :post],
+      hook,
+      &(&1 ++ hook)
+    )
+  end
+
+  def scale(query, %{min: min, max: max, cpu: cpu}), do: scale(query, min, max, cpu)
+
   def scale(query, min, max), do: scale(query, min, max, 50)
 
   queryfy(:scale, [:min, :max, :cpu])
