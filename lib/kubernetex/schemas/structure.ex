@@ -20,7 +20,7 @@ defmodule Kubernetex.Structure do
 
     post_ns =
       if kind do
-        kind_snake = "/#{MacroX.snakize(kind)}"
+        kind_snake = "/#{String.downcase(kind)}"
 
         if String.ends_with?(kind_snake, "s"), do: kind_snake <> "es", else: kind_snake <> "s"
       else
@@ -64,7 +64,8 @@ defmodule Kubernetex.Structure do
            type: unquote(type),
            required: unquote(opts[:required] || false),
            default: unquote(opts[:default]),
-           dump: unquote(opts[:dump] != false)
+           dump: unquote(opts[:dump] != false),
+           camelized: unquote(opts[:camelized] || MacroX.camelize(name))
          }}
       )
     end
@@ -76,7 +77,6 @@ defmodule Kubernetex.Structure do
       env.module
       |> Module.get_attribute(:struct_fields)
       |> Enum.map(fn {field, settings} ->
-        cameled = MacroX.camelize(field)
         parser = parser(settings.type)
 
         on_error =
@@ -89,7 +89,7 @@ defmodule Kubernetex.Structure do
           fn data ->
             value =
               case MapX.fetch(data, unquote(field)) do
-                :error -> MapX.fetch(data, unquote(cameled))
+                :error -> MapX.fetch(data, unquote(settings.camelized))
                 ok -> ok
               end
 
