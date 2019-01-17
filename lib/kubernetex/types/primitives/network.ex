@@ -16,7 +16,7 @@ defmodule Kubernetex.Primitives.Protocol do
       else: {:error, :unsupported_protocol}
   end
 
-  def dump(protocol), do: {:ok, protocol |> to_string |> String.upcase()}
+  def dump(protocol, _opts \\ []), do: {:ok, protocol |> to_string |> String.upcase()}
 end
 
 defmodule Kubernetex.Primitives.Port do
@@ -37,7 +37,7 @@ defmodule Kubernetex.Primitives.Port do
 
   def parse(_), do: {:error, :invalid_port}
 
-  def dump(port), do: {:ok, port}
+  def dump(port, _opts \\ []), do: {:ok, port}
 end
 
 defmodule Kubernetex.Primitives.IP do
@@ -54,7 +54,7 @@ defmodule Kubernetex.Primitives.IP do
     end
   end
 
-  def dump(%{ip: ip}) do
+  def dump(%{ip: ip}, _opts \\ []) do
     {:ok, ip |> :inet.ntoa() |> to_string}
   end
 end

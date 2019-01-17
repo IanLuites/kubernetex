@@ -6,7 +6,7 @@ defmodule Kubernetex.Primitives.Message do
     with {:error, _} <- Str.parse(message), do: {:error, :invalid_message}
   end
 
-  def dump(string), do: {:ok, string}
+  def dump(string, _opts \\ []), do: {:ok, string}
 end
 
 defmodule Kubernetex.Primitives.Reason do
@@ -19,7 +19,7 @@ defmodule Kubernetex.Primitives.Reason do
 
   def parse(_), do: {:error, :invalid_reason}
 
-  def dump(reason), do: {:ok, to_string(reason)}
+  def dump(reason, _opts \\ []), do: {:ok, to_string(reason)}
 end
 
 defmodule Kubernetex.Primitives.CIndentifier do
@@ -43,7 +43,7 @@ defmodule Kubernetex.Primitives.CIndentifier do
 
   def parse(_), do: {:error, :invalid_c_identifier}
 
-  def dump(identifier), do: {:ok, identifier}
+  def dump(identifier, _opts \\ []), do: {:ok, identifier}
 end
 
 defmodule Kubernetex.Primitives.DNSLabel do
@@ -63,7 +63,7 @@ defmodule Kubernetex.Primitives.DNSLabel do
   end
 
   def parse(_), do: {:error, :invalid_dns_label}
-  def dump(label), do: {:ok, label}
+  def dump(label, _opts \\ []), do: {:ok, label}
 end
 
 defmodule Kubernetex.Primitives.DNSSubdomain do
@@ -86,7 +86,7 @@ defmodule Kubernetex.Primitives.DNSSubdomain do
   end
 
   def parse(_), do: {:error, :invalid_dns_subdomain}
-  def dump(domain), do: {:ok, domain}
+  def dump(domain, _opts \\ []), do: {:ok, domain}
 end
 
 defmodule Kubernetex.Primitives.IANASvcName do
@@ -109,5 +109,5 @@ defmodule Kubernetex.Primitives.IANASvcName do
 
   def parse(_), do: {:error, :invalid_iana_svc_name}
 
-  def dump(name), do: {:ok, name}
+  def dump(name, _opts \\ []), do: {:ok, name}
 end

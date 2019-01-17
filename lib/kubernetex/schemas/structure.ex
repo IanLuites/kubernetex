@@ -109,18 +109,20 @@ defmodule Kubernetex.Structure do
       |> Module.get_attribute(:struct_fields)
       |> Enum.reject(fn {_, settings} -> settings[:dump] == false end)
       |> Enum.map(fn {field, settings} ->
-        cameled = MacroX.camelize(field)
         dumper = dumper(settings.type)
 
         quote do
-          fn data ->
+          fn data, opts ->
             value = data[unquote(field)]
 
             if is_nil(value) or value == %{} do
               :skip
             else
-              with {:ok, dumped} <- unquote(dumper).(value) do
-                {:ok, unquote(cameled), dumped}
+              with {:ok, dumped} <- unquote(dumper).(value, opts) do
+                case opts[:keys] || :camel do
+                  :camel -> {:ok, unquote(settings.camelized), dumped}
+                  :snake -> {:ok, unquote(field), dumped}
+                end
               end
             end
           end
@@ -135,11 +137,11 @@ defmodule Kubernetex.Structure do
         end
       end
 
-      @spec dump(__MODULE__.t()) :: {:ok, map} | {:error, term}
-      def dump(resource) do
+      @spec dump(__MODULE__.t(), Keyword.t()) :: {:ok, map} | {:error, term}
+      def dump(resource, opts \\ []) do
         data = Map.from_struct(resource)
 
-        MapX.new(unquote(dumpers), & &1.(data))
+        MapX.new(unquote(dumpers), & &1.(data, opts))
       end
     end
   end
@@ -221,7 +223,7 @@ defmodule Kubernetex.Structure do
 
   def dumper({:array, type}) do
     quote do
-      fn array -> EnumX.map(array, unquote(dumper(type))) end
+      fn array, opts -> EnumX.map(array, &unquote(dumper(type)).(&1, opts)) end
     end
   end
 
@@ -232,10 +234,10 @@ defmodule Kubernetex.Structure do
 
   def dumper({:map, key_type, value_type}) do
     quote do
-      fn map ->
+      fn map, opts ->
         MapX.new(map, fn {k, v} ->
-          with {:ok, key} <- unquote(dumper(key_type)).(k),
-               {:ok, value} <- unquote(dumper(value_type)).(v) do
+          with {:ok, key} <- unquote(dumper(key_type)).(k, opts),
+               {:ok, value} <- unquote(dumper(value_type)).(v, opts) do
             {:ok, key, value}
           end
         end)
@@ -245,11 +247,11 @@ defmodule Kubernetex.Structure do
 
   def dumper({:enum, _values}) do
     quote do
-      &{:ok, MacroX.pascalize(to_string(&1))}
+      fn value, _opts -> {:ok, MacroX.pascalize(to_string(value))} end
     end
   end
 
   def dumper(type) do
-    if primitive = @primitives[type], do: &primitive.dump/1, else: &type.dump/1
+    if primitive = @primitives[type], do: &primitive.dump/2, else: &type.dump/2
   end
 end

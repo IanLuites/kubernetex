@@ -67,7 +67,7 @@ defmodule Kubernetex.Docker do
 
   def parse(_), do: {:error, :invalid_docker_image}
 
-  def dump(value), do: {:ok, to_string(value)}
+  def dump(value, _opts \\ []), do: {:ok, to_string(value)}
 
   defimpl Inspect, for: __MODULE__ do
     @doc false

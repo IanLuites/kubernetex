@@ -43,7 +43,7 @@ defmodule Kubernetex.Container.Resources do
     end
   end
 
-  def dump(resources) do
+  def dump(resources, _opts \\ []) do
     resources
     |> Map.from_struct()
     |> MapX.new(fn

@@ -58,8 +58,9 @@ defmodule Kubernetex.Metadata do
     def parse(binary) when is_binary(binary), do: {:ok, binary}
     def parse(_), do: {:error, :invalid_string}
 
-    def dump(:generated), do: :skip
-    def dump(uid), do: {:ok, uid}
+    def dump(uid, opts \\ [])
+    def dump(:generated, _opts), do: :skip
+    def dump(uid, _opts), do: {:ok, uid}
   end
 
   defstructure version: "core/v1" do

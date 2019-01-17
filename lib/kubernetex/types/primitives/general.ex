@@ -3,7 +3,7 @@ defmodule Kubernetex.Primitives.Map do
   def parse(data) when is_map(data), do: {:ok, data}
   def parse(_), do: {:error, :invalid_map}
 
-  def dump(data), do: {:ok, data}
+  def dump(data, _opts \\ []), do: {:ok, data}
 end
 
 defmodule Kubernetex.Primitives.Timestamp do
@@ -15,7 +15,7 @@ defmodule Kubernetex.Primitives.Timestamp do
   def parse(nil), do: {:ok, nil}
   def parse(_), do: {:error, :invalid_timestamp}
 
-  def dump(data), do: {:ok, NaiveDateTime.to_iso8601(data) <> "Z"}
+  def dump(data, _opts \\ []), do: {:ok, NaiveDateTime.to_iso8601(data) <> "Z"}
 end
 
 defmodule Kubernetex.Primitives.String do
@@ -26,7 +26,7 @@ defmodule Kubernetex.Primitives.String do
 
   def parse(_), do: {:error, :invalid_string}
 
-  def dump(data), do: {:ok, data}
+  def dump(data, _opts \\ []), do: {:ok, data}
 end
 
 defmodule Kubernetex.Primitives.Boolean do
@@ -44,7 +44,7 @@ defmodule Kubernetex.Primitives.Boolean do
   end
 
   def parse(_), do: {:error, :invalid_boolean}
-  def dump(data), do: {:ok, data}
+  def dump(data, _opts \\ []), do: {:ok, data}
 end
 
 defmodule Kubernetex.Primitives.Integer do
@@ -60,7 +60,7 @@ defmodule Kubernetex.Primitives.Integer do
   end
 
   def parse(_), do: {:error, :invalid_integer}
-  def dump(data), do: {:ok, data}
+  def dump(data, _opts \\ []), do: {:ok, data}
 end
 
 defmodule Kubernetex.Primitives.NonNegativeInteger do
@@ -76,5 +76,5 @@ defmodule Kubernetex.Primitives.NonNegativeInteger do
   end
 
   def parse(_), do: {:error, :invalid_non_neg_integer}
-  def dump(data), do: {:ok, data}
+  def dump(data, _opts \\ []), do: {:ok, data}
 end

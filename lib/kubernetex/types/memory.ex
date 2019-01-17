@@ -10,7 +10,7 @@ defmodule Kubernetex.Memory do
     unit: :Mi
   ]
 
-  def dump(%__MODULE__{memory: memory, unit: unit}), do: {:ok, "#{memory}#{unit}"}
+  def dump(%__MODULE__{memory: memory, unit: unit}, _opts \\ []), do: {:ok, "#{memory}#{unit}"}
 
   @spec parse!(any) :: t | no_return
   def parse!(value) do

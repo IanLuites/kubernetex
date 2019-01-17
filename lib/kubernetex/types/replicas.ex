@@ -5,7 +5,7 @@ defmodule Kubernetex.Replicas do
     :replicas
   ]
 
-  def dump(%__MODULE__{replicas: replicas}), do: {:ok, replicas}
+  def dump(%__MODULE__{replicas: replicas}, _opts \\ []), do: {:ok, replicas}
 
   @spec parse!(any) :: t | no_return
   def parse!(value) do

@@ -6,7 +6,7 @@ defmodule Kubernetex.CPU do
     unit: :m
   ]
 
-  def dump(%__MODULE__{cpu: cpu}), do: {:ok, "#{cpu}m"}
+  def dump(%__MODULE__{cpu: cpu}, _opts \\ []), do: {:ok, "#{cpu}m"}
 
   @spec parse!(any) :: t | no_return
   def parse!(value) do
