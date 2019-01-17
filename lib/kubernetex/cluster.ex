@@ -8,7 +8,12 @@ defmodule Kubernetex.Cluster do
 
       def apply(query) do
         with {:ok, apply} <- Kubernetex.Query.resolve(query) do
-          if apply.metadata.uid == :generated, do: create(apply), else: edit(apply)
+          with {:ok, applied} <-
+                 if(apply.metadata.uid == :generated, do: create(apply), else: edit(apply)),
+               {:ok, _} <-
+                 EnumX.map(query.hooks.post, & &1.(__MODULE__, applied)) do
+            {:ok, applied}
+          end
         end
       end
 

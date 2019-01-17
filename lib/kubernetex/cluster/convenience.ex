@@ -3,6 +3,7 @@ defmodule Kubernetex.Cluster.Convenience do
     Enum.reduce(
       [
         Kubernetex.Deployment,
+        Kubernetex.HorizontalPodAutoscaler,
         Kubernetex.Ingress,
         Kubernetex.Namespace,
         Kubernetex.Secret,
