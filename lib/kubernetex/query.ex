@@ -79,6 +79,13 @@ defmodule Kubernetex.Query do
   def namespace(query, namespace),
     do: put_in(query, [:data, :metadata, :namespace], namespace)
 
+  queryfy(:annotations, [:annotations])
+
+  def annotations(query, annotations) do
+    annotations = Map.new(annotations)
+    update_in(query, [:data, :metadata, :annotations], annotations, &Map.merge(&1, annotations))
+  end
+
   queryfy(:labels, [:labels])
 
   def labels(query, labels) do
