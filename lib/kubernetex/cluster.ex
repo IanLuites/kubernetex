@@ -49,8 +49,18 @@ defmodule Kubernetex.Cluster do
       end
 
       def list(resource, opts \\ []) do
+        query =
+          if labels = opts[:label] do
+            %{
+              labelSelector:
+                labels
+                |> Enum.map(fn {k, v} -> to_string("#{k}=#{v}") end)
+                |> Enum.join(",")
+            }
+          end
+
         with {:ok, path} <- path(resource, opts),
-             {:ok, data} <- get(path) do
+             {:ok, data} <- get(path, query || %{}) do
           EnumX.map(data.items, &resource.parse/1)
         end
       end
