@@ -125,16 +125,21 @@ defmodule Kubernetex.Cluster do
       end
 
       def logs(pod, opts) do
-        namespace = opts[:namespace] || "kube-system"
-        container = opts[:container] || nil
-        timestamps = to_string(opts[:timestamps] || false)
+        ns = opts[:namespace] || "default"
+
+        params = %{
+          container: opts[:container] || nil,
+          timestamps: to_string(opts[:timestamps] || false),
+          follow: if(opts[:follow], do: "true", else: "false")
+        }
+
+        params =
+          if since = opts[:since],
+            do: Map.put(params, :sinceTime, NaiveDateTime.to_iso8601(since) <> "Z"),
+            else: params
 
         with {:error, %Jason.DecodeError{data: data}} <-
-               get("/api/v1/namespaces/#{namespace}/pods/#{pod}/log", %{
-                 container: container,
-                 timestamps: timestamps,
-                 follow: if(opts[:follow], do: "true", else: "false")
-               }) do
+               get("/api/v1/namespaces/#{ns}/pods/#{pod}/log", params) do
           {:ok, data}
         end
       end
