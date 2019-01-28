@@ -10,5 +10,6 @@ defmodule Kubernetex.Template.Spec do
 
   defstructure version: "core/v1" do
     field :containers, {:array, Kubernetex.Container}, required: true
+    field :image_pull_secrets, {:array, Kubernetex.LocalObjectReference}, default: []
   end
 end

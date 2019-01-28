@@ -190,6 +190,25 @@ defmodule Kubernetex.Query do
     end
   end
 
+  queryfy(:image_pull_secret, [:secret])
+
+  def image_pull_secret(query = %__MODULE__{resource: resource}, secret) do
+    secret = %{name: secret}
+
+    case resource do
+      Template ->
+        update_in(
+          query,
+          [:data, :spec, :image_pull_secrets],
+          [secret],
+          &Enum.uniq([secret | &1])
+        )
+
+      _ ->
+        {:error, :can_not_add_secret}
+    end
+  end
+
   queryfy(:template, [:template])
 
   def template(query, template) do
