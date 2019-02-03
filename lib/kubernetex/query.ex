@@ -93,6 +93,10 @@ defmodule Kubernetex.Query do
     update_in(query, [:data, :metadata, :labels], labels, &Map.merge(&1, labels))
   end
 
+  queryfy(:type, [:type])
+
+  def type(query, type), do: put_in(query, [:data, :type], type)
+
   queryfy(:selector, [:selectors])
 
   def selector(query = %__MODULE__{resource: resource}, selectors) do
