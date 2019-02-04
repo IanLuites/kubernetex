@@ -13,10 +13,17 @@ defmodule Kubernetex.Cluster.Config do
   ### Helpers ###
 
   def config(opts) do
-    if file = opts[:config] do
-      with {:ok, data} <- YamlElixir.read_from_file(file), do: {:ok, MapX.atomize(data)}
-    else
-      {:ok, nil}
+    config = opts[:config]
+
+    cond do
+      is_binary(config) and File.exists?(config) ->
+        with {:ok, data} <- YamlElixir.read_from_file(config), do: {:ok, MapX.atomize(data)}
+
+      is_map(config) ->
+        {:ok, MapX.atomize(config)}
+
+      :unknown ->
+        {:ok, nil}
     end
   end
 
@@ -52,16 +59,6 @@ defmodule Kubernetex.Cluster.Config do
   def url(nil, opts) do
     if url = opts[:url], do: {:ok, url}, else: {:error, :missing_url}
   end
-
-  def old_url(config, cluster \\ nil)
-  def old_url(config, nil), do: config.clusters |> List.first() |> get_in([:cluster, :server])
-
-  def old_url(config, cluster),
-    do:
-      config.clusters
-      |> Enum.find(&(&1.name == cluster))
-      |> Kernel.||(%{})
-      |> get_in([:cluster, :server])
 
   def certificate(%{clusters: clusters}, opts) do
     cluster =

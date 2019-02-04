@@ -1,7 +1,7 @@
 defmodule Kubernetex.Cluster do
   defmacro __using__(opts \\ []) do
     quote do
-      use Kubernetex.Cluster.Config, unquote(opts)
+      use Kubernetex.Cluster.Config, unquote(Macro.escape(opts))
       use Kubernetex.Cluster.API
       use Kubernetex.Cluster.Convenience
       require Logger
