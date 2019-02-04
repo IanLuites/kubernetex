@@ -81,7 +81,7 @@ defmodule Kubernetex.Structure do
 
         on_error =
           if(settings.required,
-            do: :"error_missing_#{field}",
+            do: {:error, :"error_missing_#{field}"},
             else: {:ok, field, settings.default}
           )
 
