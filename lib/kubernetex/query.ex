@@ -195,6 +195,7 @@ defmodule Kubernetex.Query do
   end
 
   queryfy(:image_pull_secret, [:secret])
+  def image_pull_secret(query, %{metadata: %{name: name}}), do: image_pull_secret(query, name)
 
   def image_pull_secret(query = %__MODULE__{resource: resource}, secret) do
     secret = %{name: secret}
