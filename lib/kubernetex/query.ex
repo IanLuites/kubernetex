@@ -149,12 +149,12 @@ defmodule Kubernetex.Query do
         }
       end
 
-    put_in(query, [:data, :spec, :rules], [
-      %{
-        host: rule[:host],
-        http: %{paths: [path]}
-      }
-    ])
+    clean_rule = %{
+      host: rule[:host],
+      http: %{paths: [path]}
+    }
+
+    update_in(query, [:data, :spec, :rules], [clean_rule], &set_rule(&1, clean_rule))
   end
 
   queryfy(:drop_port, [:port])
@@ -453,6 +453,10 @@ defmodule Kubernetex.Query do
 
   defp set_port(ports, port = %{port: p}) do
     [port | Enum.reject(ports, &(&1.port == p))]
+  end
+
+  defp set_rule(rules, rule = %{host: h}) do
+    [rule | Enum.reject(rules, &(&1.host == h))]
   end
 
   defp delete_port(_ports, :all), do: []
