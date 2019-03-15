@@ -143,6 +143,18 @@ defmodule Kubernetex.Structure do
 
         MapX.new(unquote(dumpers), & &1.(data, opts))
       end
+
+      defimpl Jason.Encoder, for: __MODULE__ do
+        alias Jason.Encode
+        @doc false
+        @spec encode(any, Keyword.t()) :: any
+        def encode(value, opts) do
+          value
+          |> unquote(__CALLER__.module).dump()
+          |> elem(1)
+          |> Encode.map(opts)
+        end
+      end
     end
   end
 
