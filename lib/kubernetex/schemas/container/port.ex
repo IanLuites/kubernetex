@@ -30,6 +30,7 @@ defmodule Kubernetex.Container.Port do
     field :container_port, :port, required: true
     field :host_ip, :ip, required: false
     field :host_port, :port, required: false
+    field :name, :iana_svc_name, required: false
     field :protocol, :protocol, required: false, default: :tcp
   end
 
