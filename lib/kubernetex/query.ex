@@ -185,6 +185,31 @@ defmodule Kubernetex.Query do
     end
   end
 
+  queryfy(:probe, [:probes])
+
+  def probe(query, probes) do
+    query = if(l = probes[:liveness], do: liveness(query, l), else: query)
+    if(r = probes[:readiness], do: readiness(query, r), else: query)
+  end
+
+  queryfy(:liveness, [:probe])
+
+  def liveness(query = %__MODULE__{resource: resource}, probe) do
+    case resource do
+      Container -> put_in(query, [:data, :liveness_probe], probe)
+      _ -> {:error, :can_not_apply_liveness_probe}
+    end
+  end
+
+  queryfy(:readiness, [:probe])
+
+  def readiness(query = %__MODULE__{resource: resource}, probe) do
+    case resource do
+      Container -> put_in(query, [:data, :readiness_probe], probe)
+      _ -> {:error, :can_not_apply_readiness_probe}
+    end
+  end
+
   queryfy(:image, [:image])
 
   def image(query = %__MODULE__{resource: resource}, image) do
