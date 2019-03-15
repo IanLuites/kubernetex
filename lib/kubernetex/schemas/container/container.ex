@@ -19,5 +19,7 @@ defmodule Kubernetex.Container do
     field :env, {:array, __MODULE__.EnvVar}, required: false, default: []
     field :env_from, {:array, __MODULE__.EnvFromSource}, required: false, default: []
     field :resources, __MODULE__.Resources, required: false, default: nil
+    field :liveness_probe, __MODULE__.Probe, required: false
+    field :readiness_probe, __MODULE__.Probe, required: false
   end
 end
