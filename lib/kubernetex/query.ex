@@ -173,11 +173,23 @@ defmodule Kubernetex.Query do
   def port(query = %__MODULE__{resource: resource}, port, settings) do
     case resource do
       Service ->
-        port = settings |> Map.new() |> Map.put(:port, port)
+        port =
+          case port do
+            p when is_integer(p) -> settings |> Map.new() |> Map.put(:port, port)
+            p = %Service.Port{} -> p |> Service.Port.dump() |> elem(1)
+            p = %{} -> p
+          end
+
         update_in(query, [:data, :spec, :ports], [port], &set_port(&1, port))
 
       Container ->
-        port = settings |> Map.new() |> Map.put(:container_port, port)
+        port =
+          case port do
+            p when is_integer(p) -> settings |> Map.new() |> Map.put(:container_port, port)
+            p = %Container.Port{} -> p |> Container.Port.dump() |> elem(1)
+            p = %{} -> p
+          end
+
         update_in(query, [:data, :ports], [port], &set_port(&1, port))
 
       _ ->
@@ -474,6 +486,14 @@ defmodule Kubernetex.Query do
       nil -> put_in(map, keys, default)
       update -> put_in(map, keys, updater.(update))
     end
+  end
+
+  defp set_port(ports, port = %{containerPort: p}) do
+    [port | Enum.reject(ports, &((&1[:containerPort] || &1[:container_port]) == p))]
+  end
+
+  defp set_port(ports, port = %{container_port: p}) do
+    [port | Enum.reject(ports, &((&1[:containerPort] || &1[:container_port]) == p))]
   end
 
   defp set_port(ports, port = %{port: p}) do
