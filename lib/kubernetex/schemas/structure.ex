@@ -226,7 +226,9 @@ defmodule Kubernetex.Structure do
     dns_subdomain: Kubernetex.Primitives.DNSSubdomain,
     iana_svc_name: Kubernetex.Primitives.IANASvcName,
     message: Kubernetex.Primitives.Message,
-    reason: Kubernetex.Primitives.Reason
+    reason: Kubernetex.Primitives.Reason,
+    condition_type: Kubernetex.Primitives.ConditionType,
+    status: Kubernetex.Primitives.Status
   }
 
   def parser(type) do

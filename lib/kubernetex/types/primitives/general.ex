@@ -78,3 +78,45 @@ defmodule Kubernetex.Primitives.NonNegativeInteger do
   def parse(_), do: {:error, :invalid_non_neg_integer}
   def dump(data, _opts \\ []), do: {:ok, data}
 end
+
+defmodule Kubernetex.Primitives.Status do
+  @status ~w(true false unknown)a
+
+  Enum.each(@status, fn type ->
+    def parse(unquote(type |> to_string |> Macro.camelize())), do: {:ok, unquote(type)}
+  end)
+
+  Enum.each(@status, fn type ->
+    def parse(unquote(type |> to_string)), do: {:ok, unquote(type)}
+  end)
+
+  Enum.each(@status, fn type ->
+    def parse(unquote(type)), do: {:ok, unquote(type)}
+  end)
+
+  def parse(_), do: {:error, :invalid_status}
+  def dump(data, _opts \\ []), do: {:ok, data |> to_string() |> Macro.camelize()}
+end
+
+defmodule Kubernetex.Primitives.ConditionType do
+  @types ~w(available progressing pod_scheduled ready initialized unschedulable containers_ready)a
+
+  Enum.each(@types, fn type ->
+    def parse(unquote(type |> to_string |> Macro.camelize())), do: {:ok, unquote(type)}
+  end)
+
+  Enum.each(@types, fn type ->
+    def parse(unquote(type |> to_string)), do: {:ok, unquote(type)}
+  end)
+
+  Enum.each(@types, fn type ->
+    def parse(unquote(type)), do: {:ok, unquote(type)}
+  end)
+
+  def parse(e) do
+    IO.inspect(e)
+    {:error, :invalid_condition_type}
+  end
+
+  def dump(data, _opts \\ []), do: {:ok, data |> to_string() |> Macro.camelize()}
+end

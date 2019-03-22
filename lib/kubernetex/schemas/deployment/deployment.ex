@@ -4,6 +4,7 @@ defmodule Kubernetex.Deployment do
   defstructure version: "apps/v1", kind: "Deployment" do
     field :metadata, Kubernetex.Metadata, required: true
     field :spec, __MODULE__.Spec, required: true
+    field :status, __MODULE__.Status, required: false
   end
 
   defimpl Inspect, for: __MODULE__ do
