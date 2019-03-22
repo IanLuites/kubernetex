@@ -17,9 +17,11 @@ defmodule Kubernetex.Primitives.Reason do
       else: {:error, :invalid_reason}
   end
 
+  def parse(reason) when is_atom(reason), do: {:ok, reason}
+
   def parse(_), do: {:error, :invalid_reason}
 
-  def dump(reason, _opts \\ []), do: {:ok, to_string(reason)}
+  def dump(reason, _opts \\ []), do: {:ok, reason |> to_string() |> Macro.camelize()}
 end
 
 defmodule Kubernetex.Primitives.CIndentifier do

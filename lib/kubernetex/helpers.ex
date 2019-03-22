@@ -94,6 +94,8 @@ defmodule Kubernetex.Helpers do
       else: {:error, :invalid_reason}
   end
 
+  def reason(reason) when is_atom(reason), do: {:ok, reason}
+
   def reason(_), do: {:error, :invalid_reason}
 
   @doc ~S"""
