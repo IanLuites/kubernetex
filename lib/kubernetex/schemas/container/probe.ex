@@ -34,5 +34,7 @@ defmodule Kubernetex.Container.Probe do
     field :failure_threshold, :integer, required: false, default: 3
     field :timeout_seconds, :integer, required: false, default: 1
     field :http_get, __MODULE__.HttpGetAction, required: false
+    field :tcp_socket, __MODULE__.TCPSocketAction, required: false
+    field :exec, __MODULE__.ExecAction, required: false
   end
 end
