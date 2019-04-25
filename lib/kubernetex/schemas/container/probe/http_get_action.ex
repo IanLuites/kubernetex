@@ -21,5 +21,6 @@ defmodule Kubernetex.Container.Probe.HttpGetAction do
     field :path, :string, required: true
     field :port, :integer, required: true
     field :scheme, :string, required: false, default: "HTTP"
+    field :http_headers, {:array, Kubernetex.Core.HTTPHeader}, required: false, default: []
   end
 end
