@@ -206,6 +206,13 @@ defmodule Kubernetex.Query do
 
   queryfy(:liveness, [:probe])
 
+  def liveness(query, probe = %Container.Probe{}) do
+    case Container.Probe.dump(probe) do
+      {:ok, p} -> liveness(query, p)
+      error -> error
+    end
+  end
+
   def liveness(query = %__MODULE__{resource: resource}, probe) do
     case resource do
       Container -> put_in(query, [:data, :liveness_probe], probe)
@@ -214,6 +221,13 @@ defmodule Kubernetex.Query do
   end
 
   queryfy(:readiness, [:probe])
+
+  def readiness(query, probe = %Container.Probe{}) do
+    case Container.Probe.dump(probe) do
+      {:ok, p} -> readiness(query, p)
+      error -> error
+    end
+  end
 
   def readiness(query = %__MODULE__{resource: resource}, probe) do
     case resource do
