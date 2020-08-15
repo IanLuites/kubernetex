@@ -7,7 +7,8 @@ defmodule Kubernetex.Cluster.Config do
     :pool,
     :proxy,
     :url,
-    :version
+    :version,
+    ssl_options: []
   ]
 
   ### Helpers ###
@@ -32,8 +33,10 @@ defmodule Kubernetex.Cluster.Config do
 
     cond do
       is_binary(proxy) ->
-        uri = URI.parse(proxy)
-        {:ok, {String.to_atom(uri.scheme), String.to_charlist(uri.host), uri.port}}
+        {:ok, proxy}
+
+      # uri = URI.parse(proxy)
+      # {:ok, {String.to_atom(uri.scheme), String.to_charlist(uri.host), uri.port}}
 
       is_tuple(proxy) ->
         {:ok, proxy}
@@ -100,7 +103,11 @@ defmodule Kubernetex.Cluster.Config do
 
   def authentication(%{users: users}, opts) do
     user = if id = opts[:user], do: Enum.find(users, &(&1.name == id)), else: List.first(users)
-    if user, do: Kubernetex.Cluster.Auth.Certificate.parse(user), else: authentication(nil, opts)
+
+    case Kubernetex.Cluster.Auth.Certificate.parse(user) do
+      ok = {:ok, _} -> ok
+      _ -> Kubernetex.Cluster.Auth.Token.parse(user)
+    end
   end
 
   ### Parsing ###
@@ -113,6 +120,7 @@ defmodule Kubernetex.Cluster.Config do
         opts
       end
 
+    ssl = Keyword.get(opts, :ssl_options, [])
     result = %__MODULE__{pool: cluster}
 
     with {:ok, config} <- config(opts),
@@ -120,7 +128,14 @@ defmodule Kubernetex.Cluster.Config do
          {:ok, cert} <- certificate(config, opts),
          {:ok, proxy} <- proxy(opts),
          {:ok, auth} <- authentication(config, opts),
-         result = %{result | url: url, proxy: proxy, auth: auth, certificate: cert},
+         result = %{
+           result
+           | url: url,
+             proxy: proxy,
+             auth: auth,
+             certificate: cert,
+             ssl_options: ssl
+         },
          {:ok, raw_version} <- Kubernetex.Cluster.API.get(result, "/version"),
          {:ok, version} <- Kubernetex.Cluster.Version.parse(raw_version),
          {:ok, apis} <- Kubernetex.Cluster.API.Versions.parse(result) do

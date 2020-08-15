@@ -25,7 +25,7 @@ defmodule Kubernetex.Cluster.Version do
          git_version: version,
          go_version: MapX.get(data, :goVersion),
          major: String.to_integer(MapX.get(data, :major)),
-         minor: String.to_integer(MapX.get(data, :minor)),
+         minor: String.to_integer(String.trim(MapX.get(data, :minor), "+")),
          platform: MapX.get(data, :platform)
        }}
     end

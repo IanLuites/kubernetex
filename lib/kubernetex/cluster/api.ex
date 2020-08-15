@@ -25,6 +25,7 @@ defmodule Kubernetex.Cluster.API do
   end
 
   alias Kubernetex.Cluster.Config
+  alias Kubernetex.Cluster.Auth.{Certificate, Token}
   require Logger
 
   @doc false
@@ -35,7 +36,7 @@ defmodule Kubernetex.Cluster.API do
     HTTPX.get(
       url <> endpoint,
       params: params,
-      headers: [{"Accept", "application/json"}],
+      headers: [{"Accept", "application/json"} | auth_headers(config)],
       settings: settings(config)
     )
     |> response
@@ -50,7 +51,7 @@ defmodule Kubernetex.Cluster.API do
       url <> endpoint,
       body,
       params: params,
-      headers: [{"Accept", "application/json"}],
+      headers: [{"Accept", "application/json"} | auth_headers(config)],
       settings: settings(config)
     )
     |> response
@@ -68,7 +69,7 @@ defmodule Kubernetex.Cluster.API do
         params: params,
         headers: [
           {"Accept", "application/json"},
-          {"Content-Type", "application/merge-patch+json"}
+          {"Content-Type", "application/merge-patch+json"} | auth_headers(config)
         ],
         settings: settings(config)
       )
@@ -84,7 +85,7 @@ defmodule Kubernetex.Cluster.API do
     HTTPX.delete(
       url <> endpoint,
       params: params,
-      headers: [{"Accept", "application/json"}],
+      headers: [{"Accept", "application/json"} | auth_headers(config)],
       settings: settings(config)
     )
     |> response
@@ -115,10 +116,29 @@ defmodule Kubernetex.Cluster.API do
     end
   end
 
+  @spec auth_headers(Config.t()) :: list
+  defp auth_headers(config)
+  defp auth_headers(%Config{auth: %Certificate{}}), do: []
+  defp auth_headers(%Config{auth: %Token{token: t}}), do: [{"authorization", "Bearer #{t}"}]
+
   @spec settings(Config.t()) :: Keyword.t()
-  defp settings(%Config{certificate: cert, auth: auth, proxy: proxy, pool: pool}) do
+  defp settings(%Config{
+         certificate: cert,
+         auth: auth = %Certificate{},
+         proxy: proxy,
+         pool: pool,
+         ssl_options: opts
+       }) do
     [
-      ssl_options: [key: auth.key, cert: auth.cert, cacerts: [cert]],
+      ssl_options: [key: auth.key, cert: auth.cert, cacerts: [cert]] ++ opts,
+      pool: pool,
+      proxy: proxy
+    ]
+  end
+
+  defp settings(%Config{certificate: cert, proxy: proxy, pool: pool, ssl_options: opts}) do
+    [
+      ssl_options: [{:cacerts, [cert]} | opts],
       pool: pool,
       proxy: proxy
     ]

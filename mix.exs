@@ -51,8 +51,8 @@ defmodule Kubernetex.MixProject do
 
   defp deps do
     [
-      {:common_x, "~> 0.0.5"},
-      {:httpx, "~> 0.0.12"},
+      {:common_x, ">= 0.0.0"},
+      {:httpx, "~> 0.1.2"},
       {:jason, "~> 1.1"},
       {:yaml_elixir, "~> 2.1"},
 
