@@ -52,13 +52,13 @@ defmodule Kubernetex.MixProject do
   defp deps do
     [
       {:common_x, ">= 0.0.0"},
-      {:httpx, "~> 0.1.2"},
-      {:jason, "~> 1.1"},
-      {:yaml_elixir, "~> 2.1"},
+      {:httpx, "~> 0.1.4"},
+      {:jason, "~> 1.2"},
+      {:yaml_elixir, "~> 2.7"},
 
       # Dev Only
-      {:analyze, "~> 0.1.3", optional: true, runtime: false, only: [:dev, :test]},
-      {:dialyxir, "~> 1.0.0-rc.4", optional: true, runtime: false, only: [:dev, :test]}
+      {:analyze, "~> 0.1.14", optional: true, runtime: false, only: [:dev, :test]},
+      {:dialyxir, "~> 1.1", optional: true, runtime: false, only: [:dev, :test]}
     ]
   end
 end
