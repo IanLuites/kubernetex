@@ -21,5 +21,6 @@ defmodule Kubernetex.Container do
     field :resources, __MODULE__.Resources, required: false, default: nil
     field :liveness_probe, __MODULE__.Probe, required: false
     field :readiness_probe, __MODULE__.Probe, required: false
+    field :host_aliases, {:array, __MODULE__.HostAlias}, required: false, default: []
   end
 end
