@@ -7,7 +7,8 @@ defmodule Kubernetex.Cluster.Convenience do
         Kubernetex.Ingress,
         Kubernetex.Namespace,
         Kubernetex.Secret,
-        Kubernetex.Service
+        Kubernetex.Service,
+        Kubernetex.StatefulSet
       ],
       nil,
       fn resource, acc ->
